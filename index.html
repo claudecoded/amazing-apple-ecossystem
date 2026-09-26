@@ -148,7 +148,6 @@
                 <input type="file" id="airdrop-file" style="display: none;">
             </div>
         </div>
-
         <div id="app-music" class="app-container">
             <h2>🎵 Apple Music Stream Interface</h2>
             <p style="color: var(--text-muted)">Browse custom curated playlists and play sound samples seamlessly.</p>
@@ -182,5 +181,102 @@
 
     <script>
         function switchApp(appId, element) {
-            document.querySelectorAll('.app-container').forEach(app => app.classList.remove('active'));
-            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            var containers = document.querySelectorAll('.app-container');
+            for (var i = 0; i < containers.length; i++) {
+                containers[i].style.display = 'none';
+            }
+            var items = document.querySelectorAll('.menu-item');
+            for (var j = 0; j < items.length; j++) {
+                items[j].classList.remove('active');
+            }
+            
+            document.getElementById('app-' + appId).style.display = 'block';
+            element.classList.add('active');
+        }
+
+        let catalogData = null;
+        const fileUpload = document.getElementById('file-upload');
+        const targetLocale = document.getElementById('target-locale');
+        const tableBody = document.getElementById('table-body');
+        const xcodeWorkspace = document.getElementById('xcode-workspace');
+
+        if(fileUpload) {
+            fileUpload.addEventListener('change', function(e) {
+                const file = e.target.files;
+                if (!file || file.length === 0) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    catalogData = JSON.parse(evt.target.result);
+                    renderXcodeTable();
+                };
+                reader.readAsText(file[0]);
+            });
+        }
+
+        if(targetLocale) {
+            targetLocale.addEventListener('input', function() { 
+                if(catalogData) renderXcodeTable(); 
+            });
+        }
+
+        function renderXcodeTable() {
+            const lang = targetLocale.value || 'es';
+            tableBody.innerHTML = '';
+            
+            Object.keys(catalogData.strings || {}).forEach(function(key) {
+                const item = catalogData.strings[key];
+                let val = '';
+                if (item.localizations && item.localizations[lang] && item.localizations[lang].stringUnit) {
+                    val = item.localizations[lang].stringUnit.value || '';
+                }
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td style="color:#f7768e; font-family:monospace;">' + key + '</td>' +
+                               '<td style="color:#9ece6a;">' + key + '</td>' +
+                               '<td><input type="text" class="input-dark table-input" value="' + val + '" data-key="' + key + '"></td>';
+                tableBody.appendChild(tr);
+            });
+
+            const inputs = document.querySelectorAll('.table-input');
+            inputs.forEach(function(input) {
+                input.addEventListener('input', function(e) {
+                    const k = e.target.getAttribute('data-key');
+                    if(!catalogData.strings[k].localizations) catalogData.strings[k].localizations = {};
+                    catalogData.strings[k].localizations[lang] = { 
+                        stringUnit: { state: 'translated', value: e.target.value } 
+                    };
+                });
+            });
+            xcodeWorkspace.style.display = 'block';
+        }
+
+        const btnExport = document.getElementById('btn-export');
+        if(btnExport) {
+            btnExport.addEventListener('click', function() {
+                if(!catalogData || !fileUpload.files || fileUpload.files.length === 0) return;
+                const blob = new Blob([JSON.stringify(catalogData, null, 2)], {type: 'application/json'});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = fileUpload.files[0].name;
+                a.click();
+            });
+        }
+
+        const zone = document.getElementById('drop-zone');
+        if(zone) {
+            zone.addEventListener('click', function() { 
+                document.getElementById('airdrop-file').click(); 
+            });
+        }
+        
+        const airdropFile = document.getElementById('airdrop-file');
+        if(airdropFile) {
+            airdropFile.addEventListener('change', function(e) {
+                if(e.target.files && e.target.files.length > 0) {
+                    alert('File "' + e.target.files[0].name + '" simulated and broadcasted to local network sandbox!');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
