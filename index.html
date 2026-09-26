@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xcode String Catalog Editor Online</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background-color: #252526;
+            padding: 12px 20px;
+            border-bottom: 1px solid #3c3c3c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        h1 { margin: 0; fontSize: 15px; font-weight: 600; font-size: 16px; }
+        .subtitle { margin: 4px 0 0 0; font-size: 11px; color: #8a8a8a; }
+        .controls { display: flex; align-items: center; gap: 15px; }
+        .control-label { font-size: 12px; color: #8a8a8a; display: flex; align-items: center; gap: 6px; }
+        .text-input {
+            background-color: #151515;
+            color: #ffffff;
+            border: 1px solid #3c3c3c;
+            padding: 4px 8px;
+            border-radius: 4px;
+            width: 60px;
+            text-align: center;
+            font-family: 'SF Mono', Menlo, Monaco, monospace;
+        }
+        .btn {
+            background-color: #007aff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        main { flex: 1; padding: 20px; }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 50vh;
+            color: #8a8a8a;
+            text-align: center;
+        }
+        .table-container { border: 1px solid #3c3c3c; border-radius: 6px; overflow: hidden; display: none; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th { background-color: #2d2d2d; border-bottom: 1px solid #3c3c3c; color: #8a8a8a; padding: 10px 15px; font-weight: 500; }
+        td { border-bottom: 1px solid #3c3c3c; padding: 12px 15px; vertical-align: top; }
+        .col-key { font-family: 'SF Mono', Menlo, Monaco, monospace; color: #f7768e; width: 30%; }
+        .col-source { color: #9ece6a; width: 35%; }
+        .table-input {
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #151515;
+            color: #ffffff;
+            border: 1px solid #3c3c3c;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1 id="title-display">🛠️ Localizable.xcstrings — String Catalog Editor</h1>
+            <p class="subtitle">Xcode Online Localization Utility</p>
+        </div>
+        <div class="controls">
+            <label class="control-label">
+                Open: <input type="file" id="file-upload" accept=".xcstrings" style="color: #8a8a8a; font-size: 12px;">
+            </label>
+            <div id="editor-actions" style="display: none; align-items: center; gap: 10px;">
+                <label class="control-label">
+                    Target Language:
+                    <input type="text" id="target-locale" value="es" class="text-input">
+                </label>
+                <button class="btn" id="btn-export">Export Catalog</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="empty-view" class="empty-state">
+            <span style="font-size: 48px; margin-bottom: 15px;">📦</span>
+            <p style="margin: 0; font-size: 14px;">No String Catalog file loaded.</p>
+            <p style="margin: 5px 0 0 0; font-size: 12px;">Upload a <code>.xcstrings</code> file from your Xcode project to begin.</p>
+        </div>
+
+        <div id="table-view" class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th id="th-source">Source Language</th>
+                        <th id="th-target">Translation</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        let catalogData = null;
+        let currentFileName = 'Localizable.xcstrings';
+
+        const fileUpload = document.getElementById('file-upload');
+        const targetLocaleInput = document.getElementById('target-locale');
+        const btnExport = document.getElementById('btn-export');
+        const emptyView = document.getElementById('empty-view');
+        const tableView = document.getElementById('table-view');
+        const tableBody = document.getElementById('table-body');
+        const thSource = document.getElementById('th-source');
+        const thTarget = document.getElementById('th-target');
+        const editorActions = document.getElementById('editor-actions');
+        const titleDisplay = document.getElementById('title-display');
+
+        fileUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            currentFileName = file.name;
+            titleDisplay.innerText = `🛠️ ${currentFileName} — String Catalog Editor`;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    catalogData = JSON.parse(event.target.result);
+                    renderTable();
+                } catch (err) {
+                    alert('Invalid file format. Please upload a valid .xcstrings file.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        targetLocaleInput.addEventListener('input', () => {
+            if (catalogData) renderTable();
+        });
+
+        function renderTable() {
+            if (!catalogData) return;
+            
+            const targetLang = targetLocaleInput.value || 'es';
+            thSource.innerText = `Source Language (${catalogData.sourceLanguage || 'en'})`;
+            thTarget.innerText = `Translation (${targetLang})`;
+
+            tableBody.innerHTML = '';
+            
+            Object.keys(catalogData.strings || {}).forEach(key => {
+                const item = catalogData.strings[key];
+                const tr = document.createElement('tr');
+
+                // Tentar buscar valor traduzido existente
+                let currentVal = '';
+                if (item.localizations && item.localizations[targetLang] && item.localizations[targetLang].stringUnit) {
+                    currentVal = item.localizations[targetLang].stringUnit.value || '';
+                }
+
+                tr.innerHTML = `
+                    <td class="col-key">${key}</td>
+                    <td class="col-source">${key}</td>
+                    <td>
+                        <input type="text" class="table-input" value="${currentVal}" placeholder="Enter ${targetLang} translation..." data-key="${key}">
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // Adicionar eventos para atualizar o objeto JSON em tempo real
+            document.querySelectorAll('.table-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const key = e.target.getAttribute('data-key');
+                    const val = e.target.value;
+                    
+                    if (!catalogData.strings[key].localizations) {
+                        catalogData.strings[key].localizations = {};
+                    }
+                    catalogData.strings[key].localizations[targetLang] = {
+                        stringUnit: { state: 'translated', value: val }
+                    };
+                });
+            });
+
+            emptyView.style.display = 'none';
+            editorActions.style.display = 'flex';
+            tableView.style.display = 'block';
+        }
+
+        btnExport.addEventListener('click', () => {
+            if (!catalogData) return;
+            const blob = new Blob([JSON.stringify(catalogData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentFileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
