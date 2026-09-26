@@ -11,7 +11,6 @@
             --bg-sidebar: #121212;
             --bg-card: #252528;
             --apple-blue: #0076ff;
-            --apple-red: #ff3b30;
             --border: #323236;
             --text: #ffffff;
             --text-muted: #a1a1a6;
@@ -48,19 +47,20 @@
         .menubar-left, .menubar-right { display: flex; align-items: center; gap: 15px; }
         .os-container { display: flex; width: 100%; height: calc(100vh - 24px); margin-top: 24px; }
         sidebar {
-            width: 250px;
+            width: 260px;
             background: rgba(18, 18, 18, 0.85);
             backdrop-filter: blur(30px);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 15px 0;
+            overflow-y: auto;
         }
         .brand { padding: 0 20px 15px 20px; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
         .brand h1 { margin: 0; font-size: 16px; font-weight: 600; color: #fff; }
         .brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-muted); }
         .menu-item {
-            padding: 10px 18px;
+            padding: 8px 15px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -75,24 +75,11 @@
         .menu-item:hover { background: rgba(255, 255, 255, 0.08); }
         .menu-item.active { background: var(--apple-blue); color: #fff; }
         .app-icon-img {
-            width: 22px;
-            height: 22px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            object-fit: cover;
         }
-        .icon-dashboard { background: linear-gradient(#54a3ff, #0051d4); }
-        .icon-xcode { background: linear-gradient(#1d72f2, #0b3fa8); }
-        .icon-airdrop { background: linear-gradient(#34d399, #059669); }
-        .icon-music { background: linear-gradient(#ff5e62, #ff2a68); }
-        .icon-notes { background: linear-gradient(#ffdf00, #d4af37); color: #000; }
-        .icon-safari { background: linear-gradient(#3a86ff, #002594); }
-        .icon-imessage { background: linear-gradient(#34c759, #119933); }
-        .icon-appstore { background: linear-gradient(#1d4ed8, #1e3a8a); }
-        .icon-icloud { background: linear-gradient(#0ea5e9, #2563eb); }
         main { flex: 1; background: rgba(26, 26, 26, 0.4); position: relative; display: flex; flex-direction: column; }
         .app-container { display: none; width: 100%; height: 100%; box-sizing: border-box; padding: 25px; overflow-y: auto; }
         .app-container.active { display: block; }
@@ -117,11 +104,16 @@
         .notes-list { width: 200px; border-right: 1px solid var(--border); }
         .note-thumb { padding: 10px; background: var(--bg-card); border-radius: 6px; }
         .note-textarea { width: 100%; height: 100%; background: #2c2c2e; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 8px; resize: none; }
-        .music-grid, .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
-        .music-card, .store-card { background: var(--bg-card); padding: 15px; border-radius: 10px; text-align: center; }
-        .music-cover { width: 100px; height: 100px; background: linear-gradient(45deg, #ff453a, #ff9f0a); border-radius: 8px; margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .store-btn { background: rgba(255,255,255,0.1); color: var(--apple-blue); border: none; padding: 4px 12px; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .apple-window { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+        
+        /* Calc UI */
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 240px; margin-top: 15px; }
+        .calc-btn { background: #333; color: white; border: none; padding: 15px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+        .calc-btn.orange { background: #ff9f0a; }
+        .calc-screen { background: #000; color: white; padding: 15px; text-align: right; font-size: 24px; border-radius: 8px; max-width: 210px; margin-bottom: 10px; }
+
+        /* Terminal UI */
+        .term-body { background: #000; color: #00ff00; font-family: monospace; padding: 15px; border-radius: 8px; height: 300px; }
     </style>
 </head>
 <body>
@@ -130,42 +122,44 @@
             <span></span>
             <span style="font-weight: 600;">Finder</span>
             <span style="color: var(--text-muted);">File</span>
-            <span style="color: var(--text-muted);">Edit</span>
         </div>
         <div class="menubar-right">
             <span><i class="fa-solid fa-wifi"></i></span>
-            <span><i class="fa-solid fa-battery-three-quarters"></i> 100%</span>
+            <span>100%</span>
         </div>
     </div>
 
     <div class="os-container">
         <sidebar>
-            <div class="brand"><h1>Apple Web OS</h1><p>Ecosystem Hub v1.5.0</p></div>
-            <div class="menu-item active" onclick="switchApp('dashboard', this)"><div class="app-icon-img icon-dashboard"><i class="fa-solid fa-window-restore"></i></div> Dashboard</div>
-            <div class="menu-item" onclick="switchApp('xcode', this)"><div class="app-icon-img icon-xcode"><i class="fa-solid fa-hammer"></i></div> Xcode Online</div>
-            <div class="menu-item" onclick="switchApp('safari', this)"><div class="app-icon-img icon-safari"><i class="fa-solid fa-compass"></i></div> Safari</div>
-            <div class="menu-item" onclick="switchApp('imessage', this)"><div class="app-icon-img icon-imessage"><i class="fa-solid fa-comment"></i></div> iMessage</div>
-            <div class="menu-item" onclick="switchApp('airdrop', this)"><div class="app-icon-img icon-airdrop"><i class="fa-solid fa-rss"></i></div> AirDrop</div>
-            <div class="menu-item" onclick="switchApp('music', this)"><div class="app-icon-img icon-music"><i class="fa-solid fa-music"></i></div> Music</div>
-            <div class="menu-item" onclick="switchApp('notes', this)"><div class="app-icon-img icon-notes"><i class="fa-solid fa-file-lines"></i></div> Notes</div>
-            <div class="menu-item" onclick="switchApp('appstore', this)"><div class="app-icon-img icon-appstore"><i class="fa-solid fa-shop"></i></div> App Store</div>
+            <div class="brand"><h1>Apple Web OS</h1><p>Ecosystem Hub v1.6.0</p></div>
+            <div class="menu-item active" onclick="switchApp('dashboard', this)"><img src="Finder_Icon_macOS_Tahoe.png" class="app-icon-img"> Dashboard</div>
+            <div class="menu-item" onclick="switchApp('xcode', this)"><img src="creator-studio-app-icon-final-cut-pro.png" class="app-icon-img"> Xcode Online</div>
+            <div class="menu-item" onclick="switchApp('safari', this)"><img src="455ccc1099702144b7da4269541ae1b4.png" class="app-icon-img"> Safari</div>
+            <div class="menu-item" onclick="switchApp('imessage', this)"><img src="IMessage_logo.png" class="app-icon-img"> iMessage</div>
+            <div class="menu-item" onclick="switchApp('airdrop', this)"><img src="Icon_512x512_Normalipad.png" class="app-icon-img"> AirDrop</div>
+            <div class="menu-item" onclick="switchApp('music', this)"><img src="Apple_Music_icon.svg" class="app-icon-img"> Music</div>
+            <div class="menu-item" onclick="switchApp('notes', this)"><img src="493153.png" class="app-icon-img"> Notes</div>
+            <div class="menu-item" onclick="switchApp('appstore', this)"><img src="455ccc1099702144b7da4269541ae1b4.png" class="app-icon-img"> App Store</div>
+            <div class="menu-item" onclick="switchApp('calc', this)"><img src="d7683090881be82d88efa4ac1d3aec74.png" class="app-icon-img"> Calculator</div>
+            <div class="menu-item" onclick="switchApp('terminal', this)"><img src="71142b814e58f29c2e808244a3ef5877.png" class="app-icon-img"> Terminal</div>
+            <div class="menu-item" onclick="switchApp('siri', this)"><img src="Siri_29_29_29.png" class="app-icon-img"> Siri</div>
+            <div class="menu-item" onclick="switchApp('maps', this)"><img src="Apple_Maps_29_2024.png" class="app-icon-img"> Maps</div>
+            <div class="menu-item" onclick="switchApp('calendar', this)"><img src="Calendar_29_2025.png" class="app-icon-img"> Calendar</div>
+            <div class="menu-item" onclick="switchApp('settings', this)"><img src="493162.png" class="app-icon-img"> Settings</div>
         </sidebar>
 
         <main>
             <div id="app-dashboard" class="app-container active">
                 <h2>Ecosystem Status</h2>
                 <div class="apple-window" style="width: 240px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div class="app-icon-img icon-icloud"><i class="fa-solid fa-cloud"></i></div>
-                        <strong>iCloud Virtual Storage</strong>
-                    </div>
+                    <strong>iCloud Storage Sandbox</strong>
                     <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">5 GB free available</p>
                 </div>
             </div>
 
             <div id="app-xcode" class="app-container">
                 <div class="apple-window">
-                    <h2>🛠️ Xcode String Catalog Editor</h2>
+                    <h2>🛠️ Xcode Catalog Editor</h2>
                     <div style="margin: 20px 0; display: flex; gap: 15px;">
                         <input type="file" id="file-upload" accept=".xcstrings" class="mac-input">
                         <input type="text" id="target-locale" value="es" class="mac-input" style="width: 60px; text-align: center;">
@@ -180,12 +174,40 @@
                 </div>
             </div>
 
+            <div id="app-calc" class="app-container">
+                <div class="apple-window">
+                    <div class="calc-screen" id="calc-display">0</div>
+                    <div class="calc-grid">
+                        <button class="calc-btn" onclick="clearCalc()">C</button>
+                        <button class="calc-btn" onclick="pressCalc('/')">/</button>
+                        <button class="calc-btn" onclick="pressCalc('*')">*</button>
+                        <button class="calc-btn orange" onclick="pressCalc('-')">-</button>
+                        <button class="calc-btn" onclick="pressCalc('7')">7</button>
+                        <button class="calc-btn" onclick="pressCalc('8')">8</button>
+                        <button class="calc-btn" onclick="pressCalc('9')">9</button>
+                        <button class="calc-btn orange" onclick="pressCalc('+')">+</button>
+                        <button class="calc-btn" onclick="pressCalc('0')">0</button>
+                        <button class="calc-btn orange" style="grid-column: span 3;" onclick="calculateCalc()">=</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="app-terminal" class="app-container">
+                <div class="apple-window">
+                    <h3>Terminal (zsh)</h3>
+                    <div class="term-body">
+                        claudecoded@web-mac ~ % local-node connected<br>
+                        claudecoded@web-mac ~ % apple-ecosystem initializing...done.<br>
+                        claudecoded@web-mac ~ % _
+                    </div>
+                </div>
+            </div>
             <div id="app-safari" class="app-container">
                 <div class="safari-bar">
                     <div class="safari-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
                     <div class="safari-url">://apple.com</div>
                 </div>
-                <div class="safari-body"><h2>Safari Core View</h2></div>
+                <div class="safari-body"><h2>Safari Simulation Engine View</h2></div>
             </div>
 
             <div id="app-imessage" class="app-container">
@@ -199,8 +221,7 @@
 
             <div id="app-airdrop" class="app-container">
                 <div class="apple-window" style="text-align: center; padding: 40px;">
-                    <i class="fa-solid fa-rss" style="font-size: 48px; color: var(--apple-blue); margin-bottom: 15px;"></i>
-                    <h3>AirDrop P2P Engine</h3>
+                    <h3>AirDrop Sharing Hub</h3>
                     <input type="file" id="airdrop-file" style="display:none;">
                     <button class="btn-apple" onclick="document.getElementById('airdrop-file').click()">Choose File</button>
                 </div>
@@ -208,7 +229,7 @@
 
             <div id="app-music" class="app-container">
                 <h2>Apple Music</h2>
-                <div class="music-grid"><div class="music-card"><div class="music-cover">🎵</div><strong>Today Hits</strong></div></div>
+                <div class="apple-window">Today's Global Curated Tracks</div>
             </div>
 
             <div id="app-notes" class="app-container">
@@ -220,10 +241,27 @@
 
             <div id="app-appstore" class="app-container">
                 <h2>Mac App Store</h2>
-                <div class="store-grid"><div class="store-card"><strong>Xcode Dev</strong><br><br><button class="store-btn">OPEN</button></div></div>
+                <div class="apple-window">Xcode Environment Suite Available</div>
+            </div>
+
+            <div id="app-siri" class="app-container">
+                <div class="apple-window"><h3>Siri Virtual Voice</h3><p style="color:var(--text-muted)">"What can I help you with inside your Web Ecosystem sandbox?"</p></div>
+            </div>
+
+            <div id="app-maps" class="app-container">
+                <div class="apple-window"><h3>Apple Maps Matrix</h3><p style="color:var(--text-muted)">Web interface mapping layer container loading spatial coordinates...</p></div>
+            </div>
+
+            <div id="app-calendar" class="app-container">
+                <div class="apple-window"><h3>Calendar Agenda</h3><p style="color:var(--text-muted)">System synchronized schedule framework engine active.</p></div>
+            </div>
+
+            <div id="app-settings" class="app-container">
+                <div class="apple-window"><h3>System Preferences</h3><p style="color:var(--text-muted)">Ecosystem sandbox properties and canvas settings module.</p></div>
             </div>
         </main>
     </div>
+
     <script>
         function switchApp(appId, element) {
             var containers = document.querySelectorAll('.app-container');
@@ -233,6 +271,11 @@
             document.getElementById('app-' + appId).style.display = 'block';
             element.classList.add('active');
         }
+
+        let calcVal = '';
+        function pressCalc(num) { calcVal += num; document.getElementById('calc-display').innerText = calcVal; }
+        function clearCalc() { calcVal = ''; document.getElementById('calc-display').innerText = '0'; }
+        function calculateCalc() { try { calcVal = eval(calcVal).toString(); document.getElementById('calc-display').innerText = calcVal; } catch(e) { clearCalc(); } }
 
         let catalogData = null;
         const fileUpload = document.getElementById('file-upload');
@@ -267,7 +310,7 @@
                     val = item.localizations[lang].stringUnit.value || '';
                 }
                 const tr = document.createElement('tr');
-                tr.innerHTML = '<td>' + key + '</td><td>' + key + '</td><td><input type="text" class="mac-input table-input" value="' + val + '" data-key="' + key + '"></td>';
+                tr.innerHTML = '<td>' + key + '<td>' + key + '</td><td><input type="text" class="mac-input table-input" value="' + val + '" data-key="' + key + '"></td>';
                 tableBody.appendChild(tr);
             });
 
