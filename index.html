@@ -3,193 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple Web Ecosystem Hub</title>
+    <title>Apple Web OS Hub</title>
+    <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         :root {
-            --bg-mac: #1e1e1e;
-            --bg-card: #2c2c2e;
-            --apple-blue: #0a84ff;
-            --border: #3a3a3c;
+            --bg-mac: #1a1a1a;
+            --bg-sidebar: #121212;
+            --bg-card: #252528;
+            --apple-blue: #0076ff;
+            --apple-red: #ff3b30;
+            --border: #323236;
             --text: #ffffff;
-            --text-muted: #aeaeac;
+            --text-muted: #a1a1a6;
+            --radius: 12px;
         }
         body {
             margin: 0;
             padding: 0;
-            background-color: #000000;
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            background-size: cover;
             color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
+        .menubar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 24px;
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 9999;
+        }
+        .menubar-left, .menubar-right { display: flex; align-items: center; gap: 15px; }
+        .os-container { display: flex; width: 100%; height: calc(100vh - 24px); margin-top: 24px; }
         sidebar {
-            width: 260px;
-            background-color: #1c1c1e;
+            width: 250px;
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(30px);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 20px 0;
+            padding: 15px 0;
         }
-        .brand {
-            padding: 0 20px 20px 20px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 10px;
-        }
-        .brand h1 { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        .brand p { margin: 5px 0 0 0; font-size: 11px; color: var(--text-muted); }
-        
+        .brand { padding: 0 20px 15px 20px; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
+        .brand h1 { margin: 0; font-size: 16px; font-weight: 600; color: #fff; }
+        .brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-muted); }
         .menu-item {
-            padding: 12px 20px;
+            padding: 10px 18px;
             display: flex;
             align-items: center;
             gap: 12px;
             cursor: pointer;
-            font-size: 14px;
-            color: var(--text-muted);
-            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            color: #e3e3e7;
+            border-radius: 8px;
+            margin: 2px 10px;
+            transition: background 0.15s;
         }
-        .menu-item:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
-        .menu-item.active { background-color: var(--apple-blue); color: #fff; font-weight: 500; }
-        .menu-icon { font-size: 18px; width: 24px; text-align: center; }
-
-        main {
-            flex: 1;
-            background-color: var(--bg-mac);
+        .menu-item:hover { background: rgba(255, 255, 255, 0.08); }
+        .menu-item.active { background: var(--apple-blue); color: #fff; }
+        .app-icon-img {
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
             display: flex;
-            flex-direction: column;
-            position: relative;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #fff;
         }
-        .app-container {
-            display: none;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            padding: 30px;
-            overflow-y: auto;
-        }
+        .icon-dashboard { background: linear-gradient(#54a3ff, #0051d4); }
+        .icon-xcode { background: linear-gradient(#1d72f2, #0b3fa8); }
+        .icon-airdrop { background: linear-gradient(#34d399, #059669); }
+        .icon-music { background: linear-gradient(#ff5e62, #ff2a68); }
+        .icon-notes { background: linear-gradient(#ffdf00, #d4af37); color: #000; }
+        .icon-safari { background: linear-gradient(#3a86ff, #002594); }
+        .icon-imessage { background: linear-gradient(#34c759, #119933); }
+        .icon-appstore { background: linear-gradient(#1d4ed8, #1e3a8a); }
+        .icon-icloud { background: linear-gradient(#0ea5e9, #2563eb); }
+        main { flex: 1; background: rgba(26, 26, 26, 0.4); position: relative; display: flex; flex-direction: column; }
+        .app-container { display: none; width: 100%; height: 100%; box-sizing: border-box; padding: 25px; overflow-y: auto; }
         .app-container.active { display: block; }
-
-        .xcode-table { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: left; }
-        .xcode-table th { background-color: #2d2d2d; color: var(--text-muted); padding: 10px; font-size: 12px; border: 1px solid var(--border); }
-        .xcode-table td { padding: 12px 10px; border: 1px solid var(--border); background: #151515; }
-        .input-dark { background: #000; border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 4px; width: 100%; box-sizing: border-box; }
-        .btn-apple { background: var(--apple-blue); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; }
-
+        .xcode-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .xcode-table th { background-color: #2d2d2d; color: var(--text-muted); padding: 10px; font-size: 12px; }
+        .xcode-table td { padding: 12px 10px; border: 1px solid var(--border); background: #151517; }
+        .mac-input { background: #151517; border: 1px solid var(--border); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; }
+        .btn-apple { background: var(--apple-blue); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+        .safari-bar { background: #252528; padding: 8px 15px; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 10px; }
+        .safari-dots { display: flex; gap: 6px; }
+        .dot { width: 11px; height: 11px; border-radius: 50%; }
+        .dot-r { background: #ff5f56; } .dot-y { background: #ffbd2e; } .dot-g { background: #27c93f; }
+        .safari-url { flex: 1; background: #151517; padding: 5px 15px; border-radius: 6px; font-size: 12px; text-align: center; color: var(--text-muted); }
+        .safari-body { height: 60vh; background: #fff; border-radius: 0 0 8px 8px; display: flex; align-items: center; justify-content: center; color: #333; }
+        .imessage-layout { display: flex; height: 65vh; border-radius: var(--radius); overflow: hidden; background: #1e1e1e; }
+        .imessage-sidebar { width: 30%; border-right: 1px solid var(--border); background: #161616; padding: 10px; }
+        .imessage-chat { flex: 1; display: flex; flex-direction: column; background: #1e1e1e; padding: 15px; }
+        .imessage-bubble { max-width: 70%; padding: 10px 14px; border-radius: 18px; margin: 5px 0; font-size: 13px; }
+        .bubble-me { background: var(--apple-blue); color: #fff; align-self: flex-end; }
+        .bubble-them { background: #3a3a3c; color: #fff; align-self: flex-start; }
         .notes-layout { display: flex; gap: 20px; height: 75vh; }
-        .notes-list { width: 200px; border-right: 1px solid var(--border); padding-right: 10px; }
-        .note-thumb { padding: 10px; background: var(--bg-card); border-radius: 6px; margin-bottom: 10px; cursor: pointer; font-size: 13px; }
-        .note-editor { flex: 1; }
-        .note-textarea { width: 100%; height: 100%; background: #2c2c2e; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 8px; resize: none; box-sizing: border-box; font-size: 15px; }
-
-        .airdrop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 60px 0; text-align: center; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); cursor: pointer; }
-        
-        .music-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; margin-top: 20px; }
-        .music-card { background: var(--bg-card); padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; transition: transform 0.2s; }
-        .music-card:hover { transform: scale(1.05); }
-        .music-cover { width: 120px; height: 120px; background: linear-gradient(45deg, #ff453a, #ff9f0a); border-radius: 8px; margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+        .notes-list { width: 200px; border-right: 1px solid var(--border); }
+        .note-thumb { padding: 10px; background: var(--bg-card); border-radius: 6px; }
+        .note-textarea { width: 100%; height: 100%; background: #2c2c2e; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 8px; resize: none; }
+        .music-grid, .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+        .music-card, .store-card { background: var(--bg-card); padding: 15px; border-radius: 10px; text-align: center; }
+        .music-cover { width: 100px; height: 100px; background: linear-gradient(45deg, #ff453a, #ff9f0a); border-radius: 8px; margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .store-btn { background: rgba(255,255,255,0.1); color: var(--apple-blue); border: none; padding: 4px 12px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .apple-window { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
     </style>
 </head>
 <body>
-
-    <sidebar>
-        <div class="brand">
-            <h1> Web OS</h1>
-            <p>Non-Apple Devices Ecosystem</p>
+    <div class="menubar">
+        <div class="menubar-left">
+            <span></span>
+            <span style="font-weight: 600;">Finder</span>
+            <span style="color: var(--text-muted);">File</span>
+            <span style="color: var(--text-muted);">Edit</span>
         </div>
-        <div class="menu-item active" onclick="switchApp('dashboard', this)"><span class="menu-icon">🖥️</span> Dashboard</div>
-        <div class="menu-item" onclick="switchApp('xcode', this)"><span class="menu-icon">🛠️</span> Xcode Online</div>
-        <div class="menu-item" onclick="switchApp('airdrop', this)"><span class="menu-icon">📱</span> AirDrop (Web)</div>
-        <div class="menu-item" onclick="switchApp('music', this)"><span class="menu-icon">🎵</span> Apple Music</div>
-        <div class="menu-item" onclick="switchApp('notes', this)"><span class="menu-icon">📝</span> iCloud Notes</div>
-    </sidebar>
-
-    <main>
-        <div id="app-dashboard" class="app-container active">
-            <h2>Welcome to your Apple Online Ecosystem</h2>
-            <p style="color: var(--text-muted)">Select a simulation service from the sidebar menu to use official ecosystem utilities directly inside your browser without needing Apple hardware.</p>
-            <div style="margin-top: 40px; display: flex; gap: 20px; flex-wrap: wrap;">
-                <div style="background: var(--bg-card); padding: 20px; border-radius: 12px; width: 220px;">
-                    <h3>Xcode Catalog</h3>
-                    <p style="font-size: 13px; color: var(--text-muted)">Translate .xcstrings strings tables on the fly without Mac Xcode.</p>
-                </div>
-                <div style="background: var(--bg-card); padding: 20px; border-radius: 12px; width: 220px;">
-                    <h3>P2P AirDrop</h3>
-                    <p style="font-size: 13px; color: var(--text-muted)">Share immediate local system files with other web peers natively.</p>
-                </div>
-            </div>
+        <div class="menubar-right">
+            <span><i class="fa-solid fa-wifi"></i></span>
+            <span><i class="fa-solid fa-battery-three-quarters"></i> 100%</span>
         </div>
+    </div>
 
-        <div id="app-xcode" class="app-container">
-            <h2>🛠️ Xcode String Catalog Editor</h2>
-            <p style="color: var(--text-muted)">Upload and translate <code>.xcstrings</code> structural localization files.</p>
-            <div style="margin: 20px 0; display: flex; gap: 15px; align-items: center;">
-                <input type="file" id="file-upload" accept=".xcstrings" class="input-dark" style="width: auto;">
-                <input type="text" id="target-locale" value="es" class="input-dark" style="width: 80px; text-align: center;" placeholder="Locale">
-                <button class="btn-apple" id="btn-export">Export Catalog</button>
-            </div>
-            <div id="xcode-workspace" style="display:none;">
-                <table class="xcode-table">
-                    <thead>
-                        <tr><th>Key</th><th>Source Base String</th><th>Target Translation Output</th></tr>
-                    </thead>
-                    <tbody id="table-body"></tbody>
-                </table>
-            </div>
-        </div>
+    <div class="os-container">
+        <sidebar>
+            <div class="brand"><h1>Apple Web OS</h1><p>Ecosystem Hub v1.5.0</p></div>
+            <div class="menu-item active" onclick="switchApp('dashboard', this)"><div class="app-icon-img icon-dashboard"><i class="fa-solid fa-window-restore"></i></div> Dashboard</div>
+            <div class="menu-item" onclick="switchApp('xcode', this)"><div class="app-icon-img icon-xcode"><i class="fa-solid fa-hammer"></i></div> Xcode Online</div>
+            <div class="menu-item" onclick="switchApp('safari', this)"><div class="app-icon-img icon-safari"><i class="fa-solid fa-compass"></i></div> Safari</div>
+            <div class="menu-item" onclick="switchApp('imessage', this)"><div class="app-icon-img icon-imessage"><i class="fa-solid fa-comment"></i></div> iMessage</div>
+            <div class="menu-item" onclick="switchApp('airdrop', this)"><div class="app-icon-img icon-airdrop"><i class="fa-solid fa-rss"></i></div> AirDrop</div>
+            <div class="menu-item" onclick="switchApp('music', this)"><div class="app-icon-img icon-music"><i class="fa-solid fa-music"></i></div> Music</div>
+            <div class="menu-item" onclick="switchApp('notes', this)"><div class="app-icon-img icon-notes"><i class="fa-solid fa-file-lines"></i></div> Notes</div>
+            <div class="menu-item" onclick="switchApp('appstore', this)"><div class="app-icon-img icon-appstore"><i class="fa-solid fa-shop"></i></div> App Store</div>
+        </sidebar>
 
-        <div id="app-airdrop" class="app-container">
-            <h2>📱 AirDrop Network Simulator</h2>
-            <p style="color: var(--text-muted)">Drop files to send them instantly to other browsers open on this exact same network page.</p>
-            <div class="airdrop-zone" id="drop-zone">
-                <span style="font-size: 48px;">📡</span>
-                <h3 style="margin: 15px 0 5px 0;">Looking for nearby web devices...</h3>
-                <p style="color: var(--text-muted); font-size: 13px;">Drag files here or click to simulate browser asset sharing</p>
-                <input type="file" id="airdrop-file" style="display: none;">
-            </div>
-        </div>
-        <div id="app-music" class="app-container">
-            <h2>🎵 Apple Music Stream Interface</h2>
-            <p style="color: var(--text-muted)">Browse custom curated playlists and play sound samples seamlessly.</p>
-            <div class="music-grid">
-                <div class="music-card" onclick="alert('Playing Spatial Audio Preview...')">
-                    <div class="music-cover">🎧</div>
-                    <strong>Spatial Hits</strong>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Apple Music Editor</div>
-                </div>
-                <div class="music-card" onclick="alert('Playing Chill Mix Preview...')">
-                    <div class="music-cover">🌊</div>
-                    <strong>Chill Mix</strong>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Customized for you</div>
+        <main>
+            <div id="app-dashboard" class="app-container active">
+                <h2>Ecosystem Status</h2>
+                <div class="apple-window" style="width: 240px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="app-icon-img icon-icloud"><i class="fa-solid fa-cloud"></i></div>
+                        <strong>iCloud Virtual Storage</strong>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">5 GB free available</p>
                 </div>
             </div>
-        </div>
 
-        <div id="app-notes" class="app-container">
-            <h2>📝 iCloud Notes Simulator</h2>
-            <p style="color: var(--text-muted)">Write notes that persist automatically in your active localized storage sandbox.</p>
-            <div class="notes-layout">
-                <div class="notes-list">
-                    <div class="note-thumb"><b>Untitled Note</b><br><span style="font-size:11px; color:var(--text-muted)">Click to load text...</span></div>
-                </div>
-                <div class="note-editor">
-                    <textarea class="note-textarea" placeholder="Start typing your note here... It auto-saves inside your browser storage context."></textarea>
+            <div id="app-xcode" class="app-container">
+                <div class="apple-window">
+                    <h2>🛠️ Xcode String Catalog Editor</h2>
+                    <div style="margin: 20px 0; display: flex; gap: 15px;">
+                        <input type="file" id="file-upload" accept=".xcstrings" class="mac-input">
+                        <input type="text" id="target-locale" value="es" class="mac-input" style="width: 60px; text-align: center;">
+                        <button class="btn-apple" id="btn-export">Export</button>
+                    </div>
+                    <div id="xcode-workspace" style="display:none;">
+                        <table class="xcode-table">
+                            <thead><tr><th>Key</th><th>Source</th><th>Translation</th></tr></thead>
+                            <tbody id="table-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-    </main>
 
+            <div id="app-safari" class="app-container">
+                <div class="safari-bar">
+                    <div class="safari-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+                    <div class="safari-url">://apple.com</div>
+                </div>
+                <div class="safari-body"><h2>Safari Core View</h2></div>
+            </div>
+
+            <div id="app-imessage" class="app-container">
+                <div class="imessage-layout">
+                    <div class="imessage-sidebar">Recent</div>
+                    <div class="imessage-chat">
+                        <div class="imessage-bubble bubble-them">iMessage Matrix Active.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="app-airdrop" class="app-container">
+                <div class="apple-window" style="text-align: center; padding: 40px;">
+                    <i class="fa-solid fa-rss" style="font-size: 48px; color: var(--apple-blue); margin-bottom: 15px;"></i>
+                    <h3>AirDrop P2P Engine</h3>
+                    <input type="file" id="airdrop-file" style="display:none;">
+                    <button class="btn-apple" onclick="document.getElementById('airdrop-file').click()">Choose File</button>
+                </div>
+            </div>
+
+            <div id="app-music" class="app-container">
+                <h2>Apple Music</h2>
+                <div class="music-grid"><div class="music-card"><div class="music-cover">🎵</div><strong>Today Hits</strong></div></div>
+            </div>
+
+            <div id="app-notes" class="app-container">
+                <div class="notes-layout">
+                    <div class="notes-list"><div class="note-thumb">iCloud Note</div></div>
+                    <div class="note-editor"><textarea class="note-textarea" placeholder="Start typing..."></textarea></div>
+                </div>
+            </div>
+
+            <div id="app-appstore" class="app-container">
+                <h2>Mac App Store</h2>
+                <div class="store-grid"><div class="store-card"><strong>Xcode Dev</strong><br><br><button class="store-btn">OPEN</button></div></div>
+            </div>
+        </main>
+    </div>
     <script>
         function switchApp(appId, element) {
             var containers = document.querySelectorAll('.app-container');
-            for (var i = 0; i < containers.length; i++) {
-                containers[i].style.display = 'none';
-            }
+            for (var i = 0; i < containers.length; i++) { containers[i].style.display = 'none'; }
             var items = document.querySelectorAll('.menu-item');
-            for (var j = 0; j < items.length; j++) {
-                items[j].classList.remove('active');
-            }
-            
+            for (var j = 0; j < items.length; j++) { items[j].classList.remove('active'); }
             document.getElementById('app-' + appId).style.display = 'block';
             element.classList.add('active');
         }
@@ -209,42 +249,33 @@
                     catalogData = JSON.parse(evt.target.result);
                     renderXcodeTable();
                 };
-                reader.readAsText(file[0]);
+                reader.readAsText(file);
             });
         }
 
         if(targetLocale) {
-            targetLocale.addEventListener('input', function() { 
-                if(catalogData) renderXcodeTable(); 
-            });
+            targetLocale.addEventListener('input', function() { if(catalogData) renderXcodeTable(); });
         }
 
         function renderXcodeTable() {
             const lang = targetLocale.value || 'es';
             tableBody.innerHTML = '';
-            
             Object.keys(catalogData.strings || {}).forEach(function(key) {
                 const item = catalogData.strings[key];
                 let val = '';
                 if (item.localizations && item.localizations[lang] && item.localizations[lang].stringUnit) {
                     val = item.localizations[lang].stringUnit.value || '';
                 }
-                
                 const tr = document.createElement('tr');
-                tr.innerHTML = '<td style="color:#f7768e; font-family:monospace;">' + key + '</td>' +
-                               '<td style="color:#9ece6a;">' + key + '</td>' +
-                               '<td><input type="text" class="input-dark table-input" value="' + val + '" data-key="' + key + '"></td>';
+                tr.innerHTML = '<td>' + key + '</td><td>' + key + '</td><td><input type="text" class="mac-input table-input" value="' + val + '" data-key="' + key + '"></td>';
                 tableBody.appendChild(tr);
             });
 
-            const inputs = document.querySelectorAll('.table-input');
-            inputs.forEach(function(input) {
+            document.querySelectorAll('.table-input').forEach(function(input) {
                 input.addEventListener('input', function(e) {
                     const k = e.target.getAttribute('data-key');
                     if(!catalogData.strings[k].localizations) catalogData.strings[k].localizations = {};
-                    catalogData.strings[k].localizations[lang] = { 
-                        stringUnit: { state: 'translated', value: e.target.value } 
-                    };
+                    catalogData.strings[k].localizations[lang] = { stringUnit: { state: 'translated', value: e.target.value } };
                 });
             });
             xcodeWorkspace.style.display = 'block';
@@ -257,24 +288,8 @@
                 const blob = new Blob([JSON.stringify(catalogData, null, 2)], {type: 'application/json'});
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = fileUpload.files[0].name;
+                a.download = fileUpload.files.name;
                 a.click();
-            });
-        }
-
-        const zone = document.getElementById('drop-zone');
-        if(zone) {
-            zone.addEventListener('click', function() { 
-                document.getElementById('airdrop-file').click(); 
-            });
-        }
-        
-        const airdropFile = document.getElementById('airdrop-file');
-        if(airdropFile) {
-            airdropFile.addEventListener('change', function(e) {
-                if(e.target.files && e.target.files.length > 0) {
-                    alert('File "' + e.target.files[0].name + '" simulated and broadcasted to local network sandbox!');
-                }
             });
         }
     </script>
