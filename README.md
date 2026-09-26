@@ -1,4 +1,4 @@
-# Amazing Apple ecosystem [![Awesome](https://awesome.re)](https://awesome.re)
+# Amazing Apple ecosystem
 A repository with Apple ecosystem softwares (open-source if it's possible), you can use on non-Apple devices / operating systems
 
 ## 📌 Categories
