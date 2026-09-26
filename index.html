@@ -3,219 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xcode String Catalog Editor Online</title>
+    <title>Apple Web Ecosystem Hub</title>
     <style>
+        :root {
+            --bg-mac: #1e1e1e;
+            --bg-card: #2c2c2e;
+            --apple-blue: #0a84ff;
+            --border: #3a3a3c;
+            --text: #ffffff;
+            --text-muted: #aeaeac;
+        }
         body {
-            background-color: #1e1e1e;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            background-color: #000000;
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        sidebar {
+            width: 260px;
+            background-color: #1c1c1e;
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
+            padding: 20px 0;
         }
-        header {
-            background-color: #252526;
+        .brand {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+        .brand h1 { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .brand p { margin: 5px 0 0 0; font-size: 11px; color: var(--text-muted); }
+        
+        .menu-item {
             padding: 12px 20px;
-            border-bottom: 1px solid #3c3c3c;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        h1 { margin: 0; fontSize: 15px; font-weight: 600; font-size: 16px; }
-        .subtitle { margin: 4px 0 0 0; font-size: 11px; color: #8a8a8a; }
-        .controls { display: flex; align-items: center; gap: 15px; }
-        .control-label { font-size: 12px; color: #8a8a8a; display: flex; align-items: center; gap: 6px; }
-        .text-input {
-            background-color: #151515;
-            color: #ffffff;
-            border: 1px solid #3c3c3c;
-            padding: 4px 8px;
-            border-radius: 4px;
-            width: 60px;
-            text-align: center;
-            font-family: 'SF Mono', Menlo, Monaco, monospace;
-        }
-        .btn {
-            background-color: #007aff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 500;
+            gap: 12px;
             cursor: pointer;
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: all 0.2s;
         }
-        main { flex: 1; padding: 20px; }
-        .empty-state {
+        .menu-item:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
+        .menu-item.active { background-color: var(--apple-blue); color: #fff; font-weight: 500; }
+        .menu-icon { font-size: 18px; width: 24px; text-align: center; }
+
+        main {
+            flex: 1;
+            background-color: var(--bg-mac);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 50vh;
-            color: #8a8a8a;
-            text-align: center;
+            position: relative;
         }
-        .table-container { border: 1px solid #3c3c3c; border-radius: 6px; overflow: hidden; display: none; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-        th { background-color: #2d2d2d; border-bottom: 1px solid #3c3c3c; color: #8a8a8a; padding: 10px 15px; font-weight: 500; }
-        td { border-bottom: 1px solid #3c3c3c; padding: 12px 15px; vertical-align: top; }
-        .col-key { font-family: 'SF Mono', Menlo, Monaco, monospace; color: #f7768e; width: 30%; }
-        .col-source { color: #9ece6a; width: 35%; }
-        .table-input {
+        .app-container {
+            display: none;
             width: 100%;
+            height: 100%;
             box-sizing: border-box;
-            background-color: #151515;
-            color: #ffffff;
-            border: 1px solid #3c3c3c;
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 13px;
+            padding: 30px;
+            overflow-y: auto;
         }
+        .app-container.active { display: block; }
+
+        .xcode-table { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: left; }
+        .xcode-table th { background-color: #2d2d2d; color: var(--text-muted); padding: 10px; font-size: 12px; border: 1px solid var(--border); }
+        .xcode-table td { padding: 12px 10px; border: 1px solid var(--border); background: #151515; }
+        .input-dark { background: #000; border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .btn-apple { background: var(--apple-blue); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+
+        .notes-layout { display: flex; gap: 20px; height: 75vh; }
+        .notes-list { width: 200px; border-right: 1px solid var(--border); padding-right: 10px; }
+        .note-thumb { padding: 10px; background: var(--bg-card); border-radius: 6px; margin-bottom: 10px; cursor: pointer; font-size: 13px; }
+        .note-editor { flex: 1; }
+        .note-textarea { width: 100%; height: 100%; background: #2c2c2e; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 8px; resize: none; box-sizing: border-box; font-size: 15px; }
+
+        .airdrop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 60px 0; text-align: center; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); cursor: pointer; }
+        
+        .music-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; margin-top: 20px; }
+        .music-card { background: var(--bg-card); padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .music-card:hover { transform: scale(1.05); }
+        .music-cover { width: 120px; height: 120px; background: linear-gradient(45deg, #ff453a, #ff9f0a); border-radius: 8px; margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center; font-size: 32px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div>
-            <h1 id="title-display">🛠️ Localizable.xcstrings — String Catalog Editor</h1>
-            <p class="subtitle">Xcode Online Localization Utility</p>
+    <sidebar>
+        <div class="brand">
+            <h1> Web OS</h1>
+            <p>Non-Apple Devices Ecosystem</p>
         </div>
-        <div class="controls">
-            <label class="control-label">
-                Open: <input type="file" id="file-upload" accept=".xcstrings" style="color: #8a8a8a; font-size: 12px;">
-            </label>
-            <div id="editor-actions" style="display: none; align-items: center; gap: 10px;">
-                <label class="control-label">
-                    Target Language:
-                    <input type="text" id="target-locale" value="es" class="text-input">
-                </label>
-                <button class="btn" id="btn-export">Export Catalog</button>
-            </div>
-        </div>
-    </header>
+        <div class="menu-item active" onclick="switchApp('dashboard', this)"><span class="menu-icon">🖥️</span> Dashboard</div>
+        <div class="menu-item" onclick="switchApp('xcode', this)"><span class="menu-icon">🛠️</span> Xcode Online</div>
+        <div class="menu-item" onclick="switchApp('airdrop', this)"><span class="menu-icon">📱</span> AirDrop (Web)</div>
+        <div class="menu-item" onclick="switchApp('music', this)"><span class="menu-icon">🎵</span> Apple Music</div>
+        <div class="menu-item" onclick="switchApp('notes', this)"><span class="menu-icon">📝</span> iCloud Notes</div>
+    </sidebar>
 
     <main>
-        <div id="empty-view" class="empty-state">
-            <span style="font-size: 48px; margin-bottom: 15px;">📦</span>
-            <p style="margin: 0; font-size: 14px;">No String Catalog file loaded.</p>
-            <p style="margin: 5px 0 0 0; font-size: 12px;">Upload a <code>.xcstrings</code> file from your Xcode project to begin.</p>
+        <div id="app-dashboard" class="app-container active">
+            <h2>Welcome to your Apple Online Ecosystem</h2>
+            <p style="color: var(--text-muted)">Select a simulation service from the sidebar menu to use official ecosystem utilities directly inside your browser without needing Apple hardware.</p>
+            <div style="margin-top: 40px; display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="background: var(--bg-card); padding: 20px; border-radius: 12px; width: 220px;">
+                    <h3>Xcode Catalog</h3>
+                    <p style="font-size: 13px; color: var(--text-muted)">Translate .xcstrings strings tables on the fly without Mac Xcode.</p>
+                </div>
+                <div style="background: var(--bg-card); padding: 20px; border-radius: 12px; width: 220px;">
+                    <h3>P2P AirDrop</h3>
+                    <p style="font-size: 13px; color: var(--text-muted)">Share immediate local system files with other web peers natively.</p>
+                </div>
+            </div>
         </div>
 
-        <div id="table-view" class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Key</th>
-                        <th id="th-source">Source Language</th>
-                        <th id="th-target">Translation</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body"></tbody>
-            </table>
+        <div id="app-xcode" class="app-container">
+            <h2>🛠️ Xcode String Catalog Editor</h2>
+            <p style="color: var(--text-muted)">Upload and translate <code>.xcstrings</code> structural localization files.</p>
+            <div style="margin: 20px 0; display: flex; gap: 15px; align-items: center;">
+                <input type="file" id="file-upload" accept=".xcstrings" class="input-dark" style="width: auto;">
+                <input type="text" id="target-locale" value="es" class="input-dark" style="width: 80px; text-align: center;" placeholder="Locale">
+                <button class="btn-apple" id="btn-export">Export Catalog</button>
+            </div>
+            <div id="xcode-workspace" style="display:none;">
+                <table class="xcode-table">
+                    <thead>
+                        <tr><th>Key</th><th>Source Base String</th><th>Target Translation Output</th></tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="app-airdrop" class="app-container">
+            <h2>📱 AirDrop Network Simulator</h2>
+            <p style="color: var(--text-muted)">Drop files to send them instantly to other browsers open on this exact same network page.</p>
+            <div class="airdrop-zone" id="drop-zone">
+                <span style="font-size: 48px;">📡</span>
+                <h3 style="margin: 15px 0 5px 0;">Looking for nearby web devices...</h3>
+                <p style="color: var(--text-muted); font-size: 13px;">Drag files here or click to simulate browser asset sharing</p>
+                <input type="file" id="airdrop-file" style="display: none;">
+            </div>
+        </div>
+
+        <div id="app-music" class="app-container">
+            <h2>🎵 Apple Music Stream Interface</h2>
+            <p style="color: var(--text-muted)">Browse custom curated playlists and play sound samples seamlessly.</p>
+            <div class="music-grid">
+                <div class="music-card" onclick="alert('Playing Spatial Audio Preview...')">
+                    <div class="music-cover">🎧</div>
+                    <strong>Spatial Hits</strong>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Apple Music Editor</div>
+                </div>
+                <div class="music-card" onclick="alert('Playing Chill Mix Preview...')">
+                    <div class="music-cover">🌊</div>
+                    <strong>Chill Mix</strong>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Customized for you</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-notes" class="app-container">
+            <h2>📝 iCloud Notes Simulator</h2>
+            <p style="color: var(--text-muted)">Write notes that persist automatically in your active localized storage sandbox.</p>
+            <div class="notes-layout">
+                <div class="notes-list">
+                    <div class="note-thumb"><b>Untitled Note</b><br><span style="font-size:11px; color:var(--text-muted)">Click to load text...</span></div>
+                </div>
+                <div class="note-editor">
+                    <textarea class="note-textarea" placeholder="Start typing your note here... It auto-saves inside your browser storage context."></textarea>
+                </div>
+            </div>
         </div>
     </main>
 
     <script>
-        let catalogData = null;
-        let currentFileName = 'Localizable.xcstrings';
-
-        const fileUpload = document.getElementById('file-upload');
-        const targetLocaleInput = document.getElementById('target-locale');
-        const btnExport = document.getElementById('btn-export');
-        const emptyView = document.getElementById('empty-view');
-        const tableView = document.getElementById('table-view');
-        const tableBody = document.getElementById('table-body');
-        const thSource = document.getElementById('th-source');
-        const thTarget = document.getElementById('th-target');
-        const editorActions = document.getElementById('editor-actions');
-        const titleDisplay = document.getElementById('title-display');
-
-        fileUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            currentFileName = file.name;
-            titleDisplay.innerText = `🛠️ ${currentFileName} — String Catalog Editor`;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    catalogData = JSON.parse(event.target.result);
-                    renderTable();
-                } catch (err) {
-                    alert('Invalid file format. Please upload a valid .xcstrings file.');
-                }
-            };
-            reader.readAsText(file);
-        });
-
-        targetLocaleInput.addEventListener('input', () => {
-            if (catalogData) renderTable();
-        });
-
-        function renderTable() {
-            if (!catalogData) return;
-            
-            const targetLang = targetLocaleInput.value || 'es';
-            thSource.innerText = `Source Language (${catalogData.sourceLanguage || 'en'})`;
-            thTarget.innerText = `Translation (${targetLang})`;
-
-            tableBody.innerHTML = '';
-            
-            Object.keys(catalogData.strings || {}).forEach(key => {
-                const item = catalogData.strings[key];
-                const tr = document.createElement('tr');
-
-                // Tentar buscar valor traduzido existente
-                let currentVal = '';
-                if (item.localizations && item.localizations[targetLang] && item.localizations[targetLang].stringUnit) {
-                    currentVal = item.localizations[targetLang].stringUnit.value || '';
-                }
-
-                tr.innerHTML = `
-                    <td class="col-key">${key}</td>
-                    <td class="col-source">${key}</td>
-                    <td>
-                        <input type="text" class="table-input" value="${currentVal}" placeholder="Enter ${targetLang} translation..." data-key="${key}">
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-
-            // Adicionar eventos para atualizar o objeto JSON em tempo real
-            document.querySelectorAll('.table-input').forEach(input => {
-                input.addEventListener('input', (e) => {
-                    const key = e.target.getAttribute('data-key');
-                    const val = e.target.value;
-                    
-                    if (!catalogData.strings[key].localizations) {
-                        catalogData.strings[key].localizations = {};
-                    }
-                    catalogData.strings[key].localizations[targetLang] = {
-                        stringUnit: { state: 'translated', value: val }
-                    };
-                });
-            });
-
-            emptyView.style.display = 'none';
-            editorActions.style.display = 'flex';
-            tableView.style.display = 'block';
-        }
-
-        btnExport.addEventListener('click', () => {
-            if (!catalogData) return;
-            const blob = new Blob([JSON.stringify(catalogData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = currentFileName;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-    </script>
-</body>
-</html>
+        function switchApp(appId, element) {
+            document.querySelectorAll('.app-container').forEach(app => app.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
