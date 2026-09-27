@@ -1,4 +1,7 @@
 # Amazing Apple ecosystem
+
+<img width="1518" height="704" alt="image" src="https://github.com/user-attachments/assets/4a437bd7-faca-4567-9b38-8cd0f9802982" />
+
 A repository with Apple ecosystem softwares (open-source if it's possible), you can use on non-Apple devices / operating systems
 
 ## 📌 Categories
